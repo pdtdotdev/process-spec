@@ -1,0 +1,12 @@
+# Node/Build dependencies
+node_modules/
+dist/
+.astro/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store

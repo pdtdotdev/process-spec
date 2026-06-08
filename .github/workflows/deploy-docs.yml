@@ -1,4 +1,4 @@
-name: Deploy Docs to GitHub Pages
+name: Deploy Astro Docs to GitHub Pages
 
 on:
   push:
@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build-and-deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -34,30 +34,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: docs/package-lock.json
 
-      - name: Install Mintlify CLI
-        run: npm install -g mintlify
-
-      - name: Export Mintlify Docs
+      - name: Install Dependencies
         run: |
           cd docs
-          mintlify export --output ../export.zip
-          cd ..
+          npm ci
 
-      - name: Extract Exported Site
+      - name: Build Docs (SSG)
         run: |
-          mkdir out
-          unzip export.zip -d out
-          # Ensure GitHub Pages doesn't ignore Next.js underscore directories (like _next)
-          touch out/.nojekyll
+          cd docs
+          npm run build
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './out'
+          path: './docs/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment

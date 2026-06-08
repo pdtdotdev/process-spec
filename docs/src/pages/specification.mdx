@@ -1,4 +1,5 @@
 ---
+layout: ../layouts/DocsLayout.astro
 title: "Specification Guide"
 description: "Detailed breakdown of the PROCESS.md structure, layout, reference syntax, and workspace configuration."
 ---
@@ -78,9 +79,6 @@ It ensures all experiment metrics are cross-checked, formatted correctly, and pu
 - Covers product and marketing metrics.
 - Excludes backend engineering experiment validations.
 ```
-
-> [!NOTE]
-> **Context Injection:** Runtimes must inject the entire `# Description` section (including any sub-headings) into the LLM prompt for **every single step**. It serves as the global environment rules.
 
 ### 3. Workflow
 The `# Workflow` section contains the actual steps of the process. Each step is represented by a level-2 (`##`) heading with the syntax: `## Step <N>: <Name>`.

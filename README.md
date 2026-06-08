@@ -2,7 +2,7 @@
 
 `PROCESS.md` is an open standard for **executable Standard Operating Procedures (SOPs)** designed for AI agents. 
 
-This repository contains the official core specification, a Mintlify documentation site, and a conforming example workspace showcasing how the standard integrates processes, skills, tools, and validation schemas.
+This repository contains the official core specification, an Astro static documentation site, and a conforming example workspace showcasing how the standard integrates processes, skills, tools, and validation schemas.
 
 ---
 
@@ -30,10 +30,11 @@ The repository is structured as follows:
 ├── spec/
 │   └── v0.1.0.md                      # Core specification document (v0.1.0)
 ├── docs/
-│   ├── mint.json                      # Mintlify configuration
-│   ├── introduction.mdx               # Overview documentation
-│   ├── specification.mdx              # Formatted specification guide
-│   └── examples.mdx                   # Examples walk-through page
+│   ├── package.json                   # Astro dependencies and scripts
+│   ├── astro.config.mjs               # Astro configuration (SSG setup)
+│   └── src/
+│       ├── layouts/                   # Custom global page layouts
+│       └── pages/                     # MDX/Astro documentation pages
 └── examples/
     └── company_ops/                   # Conforming sample workspace
         ├── pdt.yaml                   # Global project config
@@ -124,16 +125,20 @@ pdt compile --workspace ./examples/company_ops --process growth_experiment_revie
 
 ## 5. Documentation Server
 
-This repository's documentation is optimized for [Mintlify](https://mintlify.com). 
+This repository's documentation is powered by [Astro](https://astro.build/) configured with MDX support.
 
 To run the documentation server locally:
-1. Install the Mintlify CLI:
+1. Navigate to the `docs/` directory:
    ```bash
-   npm i -g mintlify
+   cd docs
    ```
-2. Navigate to the `docs/` directory and start the server:
+2. Install dependencies:
    ```bash
-   mintlify dev
+   npm install
+   ```
+3. Start the dev server:
+   ```bash
+   npm run dev
    ```
 
 ---

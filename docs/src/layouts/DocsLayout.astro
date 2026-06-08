@@ -1,0 +1,449 @@
+---
+const { title, description } = Astro.props.frontmatter || Astro.props;
+const currentPath = Astro.url.pathname;
+
+// Define base URL for links
+const base = '/process-spec';
+
+// Navigation links
+const navItems = [
+  { href: `${base}/introduction/`, label: 'Introduction' },
+  { href: `${base}/specification/`, label: 'Specification' },
+  { href: `${base}/examples/`, label: 'Examples' }
+];
+
+const githubUrl = 'https://github.com/pdtdotdev/process-spec';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title ? `${title} | PROCESS.md Spec` : 'PROCESS.md Specification'}</title>
+  {description && <meta name="description" content={description} />}
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style is:global>
+    :root {
+      --bg-color: hsl(222, 47%, 7%);
+      --panel-bg: hsl(222, 47%, 10%);
+      --sidebar-bg: hsl(222, 47%, 5%);
+      --primary: hsl(250, 89%, 65%);
+      --primary-hover: hsl(250, 89%, 72%);
+      --primary-glow: hsla(250, 89%, 65%, 0.15);
+      --text: hsl(210, 40%, 98%);
+      --text-muted: hsl(215, 20%, 65%);
+      --border: hsl(217, 32%, 15%);
+      --border-focus: hsl(217, 32%, 25%);
+      --code-bg: hsl(222, 47%, 4%);
+      
+      --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      
+      --header-height: 70px;
+      --sidebar-width: 280px;
+      --max-content-width: 860px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--sidebar-bg);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--border-focus);
+    }
+
+    /* Layout structure */
+    .app-container {
+      display: grid;
+      grid-template-rows: var(--header-height) 1fr;
+      min-height: 100vh;
+    }
+
+    header {
+      grid-row: 1;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background-color: hsla(222, 47%, 7%, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-container a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .logo-text {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--text) 30%, var(--primary-hover) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .github-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .github-link:hover {
+      color: var(--text);
+    }
+
+    /* Main Section layout */
+    .main-layout {
+      grid-row: 2;
+      display: flex;
+      width: 100%;
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      padding: 2.5rem 1.5rem;
+      position: sticky;
+      top: var(--header-height);
+      height: calc(100vh - var(--header-height));
+      overflow-y: auto;
+    }
+
+    .sidebar-section-title {
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .sidebar-nav {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .sidebar-nav a {
+      display: block;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .sidebar-nav a:hover {
+      color: var(--text);
+      background-color: var(--panel-bg);
+    }
+
+    .sidebar-nav a.active {
+      color: var(--text);
+      background-color: var(--primary-glow);
+      border-left: 3px solid var(--primary);
+      padding-left: calc(1rem - 3px);
+    }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      padding: 3rem 4rem;
+      overflow-y: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    .content-wrapper {
+      width: 100%;
+      max-width: var(--max-content-width);
+    }
+
+    /* Markdown Styling inside Layout */
+    .markdown-body h1 {
+      font-family: var(--font-heading);
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      line-height: 1.15;
+      background: linear-gradient(135deg, var(--text) 40%, hsla(210, 40%, 98%, 0.7) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .markdown-body h2 {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-top: 2.5rem;
+      margin-bottom: 1.2rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .markdown-body h3 {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 2rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .markdown-body p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.7;
+    }
+
+    .markdown-body p strong {
+      color: var(--text);
+    }
+
+    /* Code block container */
+    .markdown-body pre {
+      background-color: var(--code-bg) !important;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.75rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+
+    .markdown-body code:not(pre code) {
+      font-family: var(--font-mono);
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border);
+      color: var(--primary-hover);
+      padding: 0.2rem 0.4rem;
+      border-radius: 6px;
+      font-size: 0.875em;
+    }
+
+    /* Tables */
+    .markdown-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.75rem;
+      font-size: 0.95rem;
+    }
+
+    .markdown-body th, .markdown-body td {
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      text-align: left;
+    }
+
+    .markdown-body th {
+      background-color: var(--panel-bg);
+      font-family: var(--font-heading);
+      font-weight: 600;
+    }
+
+    .markdown-body tr:nth-child(even) {
+      background-color: hsla(222, 47%, 10%, 0.4);
+    }
+
+    /* Blockquotes & GitHub Alert boxes */
+    .markdown-body blockquote {
+      border-left: 4px solid var(--primary);
+      padding: 0.5rem 1.5rem;
+      margin-bottom: 1.75rem;
+      background-color: hsla(250, 89%, 65%, 0.05);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .markdown-body blockquote p {
+      margin-bottom: 0;
+      color: var(--text);
+      font-size: 1.02rem;
+    }
+
+    /* Links inside content */
+    .markdown-body a {
+      color: var(--primary-hover);
+      text-decoration: none;
+      transition: border-bottom 0.15s ease;
+      border-bottom: 1px solid transparent;
+    }
+
+    .markdown-body a:hover {
+      border-bottom: 1px solid var(--primary-hover);
+    }
+
+    .markdown-body ul, .markdown-body ol {
+      margin-left: 2rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-muted);
+    }
+
+    .markdown-body li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Responsive Mobile Menu Button */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      .header-links {
+        display: none;
+      }
+
+      .main-layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 1.5rem;
+      }
+
+      .content-area {
+        padding: 2rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="logo-container">
+        <a href={`${base}/introduction/`}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="24" height="24" rx="6" fill="var(--primary)"/>
+            <path d="M7 12H17M7 8H17M7 16H13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span class="logo-text">PROCESS.md</span>
+        </a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+      <div class="header-links">
+        <a href={githubUrl} target="_blank" rel="noopener noreferrer" class="github-link">
+          <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+          GitHub
+        </a>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <aside class="sidebar">
+        <div class="sidebar-section-title">Navigation</div>
+        <ul class="sidebar-nav">
+          {navItems.map((item) => {
+            // Check if current path starts with item href, or if it matches after removing trailing slashes
+            const cleanPath = currentPath.replace(/\/$/, "");
+            const cleanHref = item.href.replace(/\/$/, "");
+            const isActive = cleanPath === cleanHref || (cleanPath === "" && cleanHref === `${base}/introduction`);
+            return (
+              <li>
+                <a href={item.href} class={isActive ? "active" : ""}>
+                  {item.label}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </aside>
+
+      <main class="content-area">
+        <div class="content-wrapper">
+          <article class="markdown-body">
+            <slot />
+          </article>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Simple toggle logic for mobile sidebar
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (menuBtn && sidebar) {
+      menuBtn.addEventListener('click', () => {
+        const isVisible = sidebar.style.display === 'block';
+        sidebar.style.display = isVisible ? '' : 'block';
+      });
+    }
+  </script>
+</body>
+</html>
