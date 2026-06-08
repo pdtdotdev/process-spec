@@ -1,0 +1,44 @@
+---
+title: "Introduction"
+description: "PROCESS.md is an open standard for executable Standard Operating Procedures (SOPs) designed for AI agents."
+---
+
+# Introduction to PROCESS.md
+
+Standard Operating Procedures (SOPs) have historically been written by humans, for humans. They exist in Word documents, PDFs, or wikis. When we try to automate these processes with AI, we usually do one of two things:
+1. Wrap the rules in complex, multi-page prompt templates that the AI frequently drifts from.
+2. Build rigid, hardcoded pipelines in Python/TypeScript or drag-and-drop state machines that break the moment the real-world process changes.
+
+**`PROCESS.md`** offers a third path: **Executable SOPs**.
+
+By defining your business processes in standard, prose-first Markdown, you write instructions that humans can easily read and audit, but which AI runtimes can compile and execute deterministically.
+
+---
+
+## Core Philosophy
+
+`PROCESS.md` is built on four core design principles:
+
+### 1. Separation of Concerns
+We distinguish between what an agent *can* do (Skills) and what an agent *should* do in a specific sequence (Processes).
+* **Skills (`SKILL.md`)**: A reusable, standalone capability (e.g., "Review SQL query safety", "Format CSV report").
+* **Processes (`PROCESS.md`)**: A context-specific workflow mapping steps, approvals, and dependencies (e.g., "Weekly database migration process").
+
+### 2. Prose-First & Human-Readable
+Workflows should be owned by the operational teams (finance, HR, security, customer support) who design them, not just software developers. By keeping the workflow definition in Markdown, anyone can edit, version-control, and audit the SOP without writing JSON, YAML state machines, or code.
+
+### 3. Step Isolation & Bounded Reasoning
+Standard agents are prone to "hallucinating ahead" or executing dangerous side-effects before they're supposed to. A `PROCESS.md` runtime solves this by parsing the workflow into discrete steps, executing them sequentially, and restricting the agent's view, tools, and actions to the current step.
+
+### 4. Security is a Runtime Feature
+Natural language is not a secure sandbox. You cannot secure an LLM by asking it "Please do not write to the database without approval." In `PROCESS.md`, security rules, write privileges, and approval gates are defined in the workspace environment (`pdt.yaml`) and enforced by the engine runtime, not by prompt instructions.
+
+---
+
+## Why standardise?
+
+Having a unified specification like `PROCESS.md` allows you to:
+- **Share workflows** across different AI agents, agent frameworks, or orchestrators.
+- **Maintain a single source of truth** for both your human operators and your AI workforce.
+- **Audit execution history** step-by-step to see exactly which instructions, tools, and human approvals occurred.
+- **Enforce structural safety** out of the box, ensuring agents do not bypass critical approval steps.

@@ -1,0 +1,14 @@
+id: experiment_lookup
+name: Lookup Experiment Metrics
+description: Fetches raw experiment metrics and telemetry data for a given experiment ID.
+runtime: python3
+entrypoint: main.py
+parameters:
+  type: object
+  properties:
+    experiment_id:
+      type: string
+      description: The unique identifier of the experiment (e.g., EXP_2026_01).
+  required:
+    - experiment_id
+side_effects: false

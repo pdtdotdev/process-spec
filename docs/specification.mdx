@@ -1,0 +1,152 @@
+---
+title: "Specification Guide"
+description: "Detailed breakdown of the PROCESS.md structure, layout, reference syntax, and workspace configuration."
+---
+
+# PROCESS.md Specification
+
+A conforming `PROCESS.md` document is structured to be parsed into a state machine by a PDT (Process Development Toolkit) runtime. This guide outlines the syntax, section layout, reference rules, and project-level configuration.
+
+---
+
+## Document Structure
+
+Every `PROCESS.md` file must be composed of three parts in exact sequence:
+1. **YAML Frontmatter**
+2. **`# Description` Section**
+3. **`# Workflow` Section**
+
+```
++------------------------------------+
+|                                    |
+|  YAML Frontmatter                  |
+|  ---                               |
+|  id: growth_experiment_review      |
+|  ...                               |
+|  ---                               |
+|                                    |
++------------------------------------+
+|                                    |
+|  # Description                     |
+|  Global context and goals...       |
+|                                    |
++------------------------------------+
+|                                    |
+|  # Workflow                        |
+|                                    |
+|  ## Step 1: Lookup Experiments     |
+|  Instructions...                   |
+|                                    |
+|  ## Step 2: Analyze Results        |
+|  Instructions...                   |
+|                                    |
++------------------------------------+
+```
+
+### 1. YAML Frontmatter
+The file begins with standard YAML syntax sandwiched between `---` lines.
+
+```yaml
+---
+id: growth_experiment_review
+name: Growth Experiment Review and Analysis
+version: 0.1.0
+owner: growth-ops
+status: active
+description: Analyzes completed product growth experiments and updates downstream spreadsheets.
+tags: [growth, analytics, operations]
+runtime: pdt.process.v0
+---
+```
+
+* **`id`**: A unique, stable `snake_case` identifier.
+* **`name`**: The user-facing display name of the process.
+* **`version`**: Semantic version (e.g., `0.1.0`).
+* **`owner`**: Department or role that owns the process (e.g., `finance`, `ops`).
+* **`runtime`**: Engine compatibility version. Defaults to `pdt.process.v0`.
+
+### 2. Description
+The `# Description` section must follow the frontmatter. It defines the boundaries of the process.
+
+```markdown
+# Description
+
+This process governs the weekly ingestion and review of growth experiment results. 
+It ensures all experiment metrics are cross-checked, formatted correctly, and published.
+
+## Scope
+- Covers product and marketing metrics.
+- Excludes backend engineering experiment validations.
+```
+
+> [!NOTE]
+> **Context Injection:** Runtimes must inject the entire `# Description` section (including any sub-headings) into the LLM prompt for **every single step**. It serves as the global environment rules.
+
+### 3. Workflow
+The `# Workflow` section contains the actual steps of the process. Each step is represented by a level-2 (`##`) heading with the syntax: `## Step <N>: <Name>`.
+
+```markdown
+# Workflow
+
+## Step 1: Retrieve Experiment Metadata
+Use the `tool/experiment_lookup` tool to fetch metadata for the experiment ID.
+If the metadata cannot be found, abort the process and notify the owner.
+
+## Step 2: Analyze Metrics
+Analyze the results using the `skill/experiment-analysis` capability.
+Validate the formatted output payload against `schema/experiment-review`.
+```
+
+---
+
+## Reference Resolution Schema
+
+`PROCESS.md` uses inline code ticks to represent bound resources. During compilation, the runtime resolves these strings to path files relative to the workspace:
+
+* **`` `skill/<id>` ``**: Resolves to `./skills/<id>/SKILL.md`. Injects the skill text instructions into the current step prompt.
+* **`` `tool/<id>` ``**: Resolves to `./tools/<id>/tool.yaml`. Instantiates the software tool and makes it available to the agent for the current step.
+* **`` `schema/<id>` ``**: Resolves to `./schemas/<id>.schema.json`. Used to validate structured step output payloads.
+* **`` `process/<id>` ``**: Resolves to `./processes/<id>/PROCESS.md`. Executes a sub-process workflow.
+
+---
+
+## Workspace Configuration (`pdt.yaml`)
+
+The `pdt.yaml` file configures paths, permissions, and policies for the workspace:
+
+```yaml
+project:
+  id: company_ops
+  name: Company Operations Workflows
+
+paths:
+  processes: ./processes
+  skills: ./skills
+  tools: ./tools
+  schemas: ./schemas
+
+tools:
+  allow:
+    - experiment_lookup
+    - campaign_asset_lookup
+
+policy:
+  dry_run_blocks_side_effects: true
+  require_approval_for_external_writes: true
+```
+
+### Policy Properties
+
+* **`dry_run_blocks_side_effects`**: If `true`, any tools marked with `side_effects: true` in their `tool.yaml` will be mocked or bypassed in dry-run mode.
+* **`require_approval_for_external_writes`**: If `true`, requires explicit human confirmation before executing tool calls with side effects.
+
+---
+
+## Compiler Validation Checklist
+
+The compiler checks for compliance before execution:
+1. **Frontmatter Integrity**: Ensure all required keys (`id`, `name`, `version`, `owner`) are present and valid.
+2. **Step Sequence**: Steps must start at `Step 1` and increment by exactly 1 without gaps.
+3. **Reference Verification**: Verify that every referenced skill, tool, schema, or sub-process file exists in the filesystem.
+4. **Tool Permission Check**: Any tool used in a step must be listed in the `tools.allow` list of the workspace's `pdt.yaml`.
+5. **Acyclic Sub-processes**: Ensure nested process calls (`process/<id>`) do not create infinite dependency loops.

@@ -1,0 +1,18 @@
+project:
+  id: company_ops
+  name: Company Operations Workflows
+
+paths:
+  processes: ./processes
+  skills: ./skills
+  tools: ./tools
+  schemas: ./schemas
+
+tools:
+  allow:
+    - experiment_lookup
+    - campaign_asset_lookup
+
+policy:
+  dry_run_blocks_side_effects: true
+  require_approval_for_external_writes: true

@@ -1,0 +1,14 @@
+id: campaign_asset_lookup
+name: Lookup Campaign Assets
+description: Retrieves campaign copy and asset details for a given marketing campaign ID.
+runtime: nodejs
+entrypoint: index.js
+parameters:
+  type: object
+  properties:
+    campaign_id:
+      type: string
+      description: The campaign identifier (e.g., CAMP_2026_SPRING).
+  required:
+    - campaign_id
+side_effects: false

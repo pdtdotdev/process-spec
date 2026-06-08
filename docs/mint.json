@@ -1,0 +1,57 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "PROCESS.md Spec",
+  "logo": {
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#4F46E5",
+    "light": "#818CF8",
+    "dark": "#312E81",
+    "anchors": {
+      "from": "#4F46E5",
+      "to": "#818CF8"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Specification",
+      "url": "https://github.com/pdtdotdev/process-spec"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "GitHub",
+    "url": "https://github.com/pdtdotdev/process-spec"
+  },
+  "tabs": [
+    {
+      "name": "Docs",
+      "slug": "docs"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction"
+      ]
+    },
+    {
+      "group": "Core Specification",
+      "pages": [
+        "specification"
+      ]
+    },
+    {
+      "group": "Examples & Walkthroughs",
+      "pages": [
+        "examples"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "pdtdotdev/process-spec"
+  }
+}

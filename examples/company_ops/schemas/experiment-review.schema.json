@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExperimentReviewSummary",
+  "type": "object",
+  "properties": {
+    "experiment_id": {
+      "type": "string",
+      "pattern": "^EXP_[0-9]{4}_[0-9]{2}$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "analysis": {
+      "type": "object",
+      "properties": {
+        "control_users": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "control_conversions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "control_conversion_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "treatment_users": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "treatment_conversions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "treatment_conversion_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "lift": {
+          "type": "number"
+        },
+        "p_value": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "statistically_significant": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "control_users",
+        "control_conversions",
+        "control_conversion_rate",
+        "treatment_users",
+        "treatment_conversions",
+        "treatment_conversion_rate",
+        "lift",
+        "p_value",
+        "statistically_significant"
+      ]
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": ["Rollout", "Rollback", "Retain Control"]
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "experiment_id",
+    "name",
+    "analysis",
+    "recommendation",
+    "summary"
+  ]
+}
