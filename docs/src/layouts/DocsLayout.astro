@@ -3,11 +3,11 @@ const { title, description } = Astro.props.frontmatter || Astro.props;
 const currentPath = Astro.url.pathname;
 
 // Define base URL for links
-const base = '/process-spec';
+const base = '';
 
 // Navigation links
 const navItems = [
-  { href: `${base}/introduction/`, label: 'Introduction' },
+  { href: `${base}/`, label: 'Introduction' },
   { href: `${base}/specification/`, label: 'Specification' },
   { href: `${base}/examples/`, label: 'Examples' }
 ];
@@ -384,7 +384,7 @@ const githubUrl = 'https://github.com/pdtdotdev/process-spec';
   <div class="app-container">
     <header>
       <div class="logo-container">
-        <a href={`${base}/introduction/`}>
+        <a href="/">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect width="24" height="24" rx="6" fill="var(--primary)"/>
             <path d="M7 12H17M7 8H17M7 16H13" stroke="white" stroke-width="2" stroke-linecap="round"/>
