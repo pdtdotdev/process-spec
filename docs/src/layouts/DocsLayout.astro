@@ -30,17 +30,17 @@ const githubUrl = 'https://github.com/pdtdotdev/process-spec';
   
   <style is:global>
     :root {
-      --bg-color: hsl(222, 47%, 7%);
-      --panel-bg: hsl(222, 47%, 10%);
-      --sidebar-bg: hsl(222, 47%, 5%);
-      --primary: hsl(250, 89%, 65%);
-      --primary-hover: hsl(250, 89%, 72%);
-      --primary-glow: hsla(250, 89%, 65%, 0.15);
-      --text: hsl(210, 40%, 98%);
-      --text-muted: hsl(215, 20%, 65%);
-      --border: hsl(217, 32%, 15%);
-      --border-focus: hsl(217, 32%, 25%);
-      --code-bg: hsl(222, 47%, 4%);
+      --bg-color: hsl(0, 0%, 100%);
+      --panel-bg: hsl(0, 0%, 98%);
+      --sidebar-bg: hsl(0, 0%, 100%);
+      --primary: hsl(0, 0%, 0%);
+      --primary-hover: hsl(0, 0%, 20%);
+      --primary-glow: hsl(0, 0%, 96%);
+      --text: hsl(0, 0%, 10%);
+      --text-muted: hsl(0, 0%, 45%);
+      --border: hsl(0, 0%, 90%);
+      --border-focus: hsl(0, 0%, 75%);
+      --code-bg: hsl(0, 0%, 98%);
       
       --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -97,7 +97,7 @@ const githubUrl = 'https://github.com/pdtdotdev/process-spec';
       align-items: center;
       justify-content: space-between;
       padding: 0 2rem;
-      background-color: hsla(222, 47%, 7%, 0.8);
+      background-color: hsla(0, 0%, 100%, 0.8);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
     }
@@ -115,9 +115,7 @@ const githubUrl = 'https://github.com/pdtdotdev/process-spec';
       font-weight: 700;
       font-size: 1.25rem;
       letter-spacing: -0.02em;
-      background: linear-gradient(135deg, var(--text) 30%, var(--primary-hover) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text);
     }
 
     .header-links {
@@ -196,8 +194,9 @@ const githubUrl = 'https://github.com/pdtdotdev/process-spec';
     .sidebar-nav a.active {
       color: var(--text);
       background-color: var(--primary-glow);
-      border-left: 3px solid var(--primary);
-      padding-left: calc(1rem - 3px);
+      border-left: 2px solid var(--primary);
+      padding-left: calc(1rem - 2px);
+      font-weight: 600;
     }
 
     /* Content Area */
@@ -222,9 +221,7 @@ const githubUrl = 'https://github.com/pdtdotdev/process-spec';
       letter-spacing: -0.03em;
       margin-bottom: 1.5rem;
       line-height: 1.15;
-      background: linear-gradient(135deg, var(--text) 40%, hsla(210, 40%, 98%, 0.7) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text);
     }
 
     .markdown-body h2 {
@@ -274,7 +271,7 @@ const githubUrl = 'https://github.com/pdtdotdev/process-spec';
       font-family: var(--font-mono);
       background-color: var(--panel-bg);
       border: 1px solid var(--border);
-      color: var(--primary-hover);
+      color: var(--text);
       padding: 0.2rem 0.4rem;
       border-radius: 6px;
       font-size: 0.875em;
@@ -301,15 +298,15 @@ const githubUrl = 'https://github.com/pdtdotdev/process-spec';
     }
 
     .markdown-body tr:nth-child(even) {
-      background-color: hsla(222, 47%, 10%, 0.4);
+      background-color: var(--panel-bg);
     }
 
     /* Blockquotes & GitHub Alert boxes */
     .markdown-body blockquote {
-      border-left: 4px solid var(--primary);
+      border-left: 3px solid var(--primary);
       padding: 0.5rem 1.5rem;
       margin-bottom: 1.75rem;
-      background-color: hsla(250, 89%, 65%, 0.05);
+      background-color: var(--panel-bg);
       border-radius: 0 8px 8px 0;
     }
 
