@@ -13,7 +13,7 @@ When auditing copy and positioning for marketing campaigns, ensure the content a
    - Avoid buzzwords (e.g., "game-changing", "disruptive", "next-gen").
 
 2. **Trademark and Naming Conformance:**
-   - Verify that all product names are spelled and capitalized correctly (e.g., `PDT Workspace` not `Pdt workspace`, `PROCESS.md` not `process.md` or `Process.MD`).
+   - Verify that all product names are spelled and capitalized correctly (e.g., `PROCESS.md` not `process.md` or `Process.MD`).
 
 3. **Call to Action (CTA):**
    - Every campaign asset must contain exactly one primary CTA (e.g., "Start Free Trial", "Read the Spec").

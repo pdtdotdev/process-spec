@@ -1,147 +1,55 @@
-# PROCESS.md Specification & Reference Project
+# PROCESS.md
 
-`PROCESS.md` is an open standard for **executable Standard Operating Procedures (SOPs)** designed for AI agents. 
+`PROCESS.md` is an open specification for executable Standard Operating Procedures (SOPs) designed for AI agents and workflow engines.
 
-This repository contains the official core specification, an Astro static documentation site, and a conforming example workspace showcasing how the standard integrates processes, skills, tools, and validation schemas.
+It defines a prose-first Markdown format for business processes that need to stay readable by humans while being precise enough for software to compile, validate, and execute one step at a time.
 
----
+The `PROCESS.md` file stands alone. Tools, skills, schemas, and subprocesses are standard reference types; runtimes provide the registries, permissions, execution infrastructure, and audit systems around them.
 
-## 1. Project Philosophy
+## Why It Exists
 
-Standard Operating Procedures (SOPs) are instructions for running a business. While historically written for humans (in wikis or PDFs), modern organizations need these workflows to be executed directly by AI agents.
+Most SOPs live in wikis, PDFs, tickets, and internal docs. They explain how work should happen, but they are not directly executable. When teams automate those processes with AI, the workflow often gets moved into brittle prompt templates, hardcoded scripts, or visual state machines that are difficult for the operational owner to inspect and maintain.
 
-Usually, developers hardcode these flows inside python pipelines or complex state machine builders. This creates a disconnect between the operational teams who understand the business logic and the systems executing it.
+`PROCESS.md` keeps the procedure in Markdown while giving runtimes a clear contract for execution:
 
-`PROCESS.md` bridges this gap:
-* **Prose-First:** Procedures are authored in clean, readable Markdown, making them editable by any business owner and easily tracked via Git.
-* **Bounded Steps:** The compiler splits the document into isolated execution steps, ensuring the agent doesn't "reason ahead" or trigger side effects out of turn.
-* **Explicit Security Gates:** Unlike prompts, security parameters are specified in workspace configurations (`pdt.yaml`) and enforced by the execution engine, not by asking the model nicely.
+* **Human-owned workflows:** Operators, analysts, marketers, finance teams, legal teams, and support teams can read and edit the process without learning a state-machine DSL.
+* **Bounded execution:** A runtime executes the workflow as ordered steps, keeping the agent focused on the current step instead of letting it reason ahead or perform actions out of sequence.
+* **Standard references:** Steps reference tools, skills, schemas, and sub-processes with structured inline references, so the runtime knows exactly what context and actions are available.
+* **Runtime-enforced safety:** Security, approvals, tool permissions, and dry-run behavior are enforced by the runtime, not by natural-language requests to the model.
 
----
+## The Core Idea
 
-## 2. Directory Map
+A conforming `PROCESS.md` file has three blocks in order:
 
-The repository is structured as follows:
+1. **YAML frontmatter** for process metadata such as `id`, `name`, `version`, and `owner`.
+2. **`# Description`** for global context, scope, constraints, and goals that apply to every step.
+3. **`# Workflow`** for ordered execution steps using headings like `## Step 1: Gather Inputs`.
 
-```text
-/
-├── README.md                          # Main repository overview and quickstart
-├── LICENSE                            # MIT License file
-├── spec/
-│   └── v0.1.0.md                      # Core specification document (v0.1.0)
-├── docs/
-│   ├── package.json                   # Astro dependencies and scripts
-│   ├── astro.config.mjs               # Astro configuration (SSG setup)
-│   └── src/
-│       ├── layouts/                   # Custom global page layouts
-│       └── pages/                     # MDX/Astro documentation pages
-└── examples/
-    └── company_ops/                   # Conforming sample workspace
-        ├── pdt.yaml                   # Global project config
-        ├── processes/
-        │   ├── growth_experiment_review/
-        │   │   └── PROCESS.md
-        │   └── marketing_launch_readiness/
-        │       └── PROCESS.md
-        ├── skills/
-        │   ├── experiment-analysis/
-        │   │   └── SKILL.md
-        │   └── positioning-review/
-        │       └── SKILL.md
-        ├── tools/
-        │   ├── experiment_lookup/
-        │   │   ├── tool.yaml
-        │   │   └── main.py
-        │   └── campaign_asset_lookup/
-        │       ├── tool.yaml
-        │       └── index.js
-        └── schemas/
-            └── experiment-review.schema.json
-```
+Each step contains normal Markdown instructions. A runtime parses the step, resolves any referenced resources through its own environment, injects the relevant context, exposes the appropriate tools, and records the result before moving to the next step.
 
----
+## Reference Model
 
-## 3. Core Specification at a Glance
+`PROCESS.md` uses inline code references to bind prose instructions to executable or reusable resources. The syntax and core reference types are standard:
 
-A `PROCESS.md` file contains three blocks in exact order:
-1. **YAML Frontmatter:** Defines metadata: `id`, `name`, `version`, and `owner`.
-2. **`# Description` Section:** Global rules, scope, and context injected into every step's prompt.
-3. **`# Workflow` Section:** Ordered steps (`## Step <N>: <Name>`) containing execution instructions.
+* `` `skill/<id>` `` loads reusable capability guidance.
+* `` `tool/<id>` `` exposes an executable tool for the current step.
+* `` `schema/<id>` `` validates a structured payload or output.
+* `` `process/<id>` `` invokes another process as a sub-workflow.
 
-### Reference Resolution Schema
-Runtimes parse the workflow for inline ticks `` `type/id` `` and resolve them relative to paths defined in `pdt.yaml`:
-* **`` `skill/<id>` ``** $\rightarrow$ Reusable capability guidelines (e.g., `skills/<id>/SKILL.md`).
-* **`` `tool/<id>` ``** $\rightarrow$ Executable tool manifest (e.g., `tools/<id>/tool.yaml`).
-* **`` `schema/<id>` ``** $\rightarrow$ JSON Schema payload contract (e.g., `schemas/<id>.schema.json`).
-* **`` `process/<id>` ``** $\rightarrow$ Sub-process workflow call (e.g., `processes/<id>/PROCESS.md`).
+This keeps the workflow readable while making dependencies explicit enough for runtimes to compile, validate, authorize, and audit execution.
 
----
+Specific runtimes can add their own extensions, resource loaders, and policies. A standard process can use core reference types directly without declaring a runtime.
 
-## 4. Quickstart: Building a Workspace
+## Execution Principles
 
-To implement a `PROCESS.md` compliant workspace in your system:
+A compliant runtime should treat a process as an ordered, inspectable execution plan:
 
-### Step A: Initialize `pdt.yaml`
-Define the paths mapping and permitted tools in your workspace root:
-```yaml
-project:
-  id: company_ops
-  name: Company Operations Workflows
-paths:
-  processes: ./processes
-  skills: ./skills
-  tools: ./tools
-  schemas: ./schemas
-tools:
-  allow:
-    - experiment_lookup
-```
+* Parse and validate the document before execution.
+* Inject the full `# Description` into each step.
+* Execute only the current workflow step.
+* Resolve step references before running the agent.
+* Enforce tool permissions and approval gates outside the model.
+* Validate structured outputs against referenced schemas.
+* Preserve an audit trail of inputs, outputs, decisions, and tool calls.
 
-### Step B: Author a Process
-Create `processes/my_process/PROCESS.md`:
-```markdown
----
-id: my_process
-name: My Automated Procedure
-version: 1.0.0
-owner: engineering
----
-# Description
-Rules governing this execution.
-
-# Workflow
-## Step 1: Look Up Data
-Fetch data using `tool/my_tool`.
-```
-
-### Step C: Execute in Dry Run
-Most compliant runtimes support a dry-run flag to compile and validate the process tree without triggering tools that write or execute external actions:
-```bash
-# Example command using a compliant pdt-cli
-pdt compile --workspace ./examples/company_ops --process growth_experiment_review
-```
-
----
-
-## 5. Documentation Server
-
-This repository's documentation is powered by [Astro](https://astro.build/) configured with MDX support.
-
-To run the documentation server locally:
-1. Navigate to the `docs/` directory:
-   ```bash
-   cd docs
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the dev server:
-   ```bash
-   npm run dev
-   ```
-
----
-
-## 6. License
-This project is licensed under the MIT License - see the [LICENSE](file:///Users/chris/Documents/GitHub/process-spec/LICENSE) file for details.
+The result is a standard format for operational workflows that can be read like documentation, reviewed like code, and executed by AI systems with clearer boundaries.

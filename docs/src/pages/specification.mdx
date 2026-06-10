@@ -1,21 +1,22 @@
 ---
 layout: ../layouts/DocsLayout.astro
 title: "Specification Guide"
-description: "Detailed breakdown of the PROCESS.md structure, layout, reference syntax, and workspace configuration."
+description: "PROCESS.md document structure, reference syntax, execution behavior, and validation rules."
 ---
 
 # PROCESS.md Specification
 
-A conforming `PROCESS.md` document is structured to be parsed into a state machine by a PDT (Process Development Toolkit) runtime. This guide outlines the syntax, section layout, reference rules, and project-level configuration.
+A conforming `PROCESS.md` document is structured for compilation and step-by-step execution. This guide covers document layout, references, execution behavior, and validation.
 
 ---
 
 ## Document Structure
 
-Every `PROCESS.md` file must be composed of three parts in exact sequence:
-1. **YAML Frontmatter**
-2. **`# Description` Section**
-3. **`# Workflow` Section**
+Every `PROCESS.md` file has three blocks in this order:
+
+1. **YAML frontmatter**
+2. **`# Description`**
+3. **`# Workflow`**
 
 ```
 +------------------------------------+
@@ -45,7 +46,7 @@ Every `PROCESS.md` file must be composed of three parts in exact sequence:
 ```
 
 ### 1. YAML Frontmatter
-The file begins with standard YAML syntax sandwiched between `---` lines.
+The file starts with YAML frontmatter enclosed by `---`.
 
 ```yaml
 ---
@@ -56,18 +57,16 @@ owner: growth-ops
 status: active
 description: Analyzes completed product growth experiments and updates downstream spreadsheets.
 tags: [growth, analytics, operations]
-runtime: pdt.process.v0
 ---
 ```
 
-* **`id`**: A unique, stable `snake_case` identifier.
-* **`name`**: The user-facing display name of the process.
+* **`id`**: Unique, stable `snake_case` identifier.
+* **`name`**: User-facing process name.
 * **`version`**: Semantic version (e.g., `0.1.0`).
-* **`owner`**: Department or role that owns the process (e.g., `finance`, `ops`).
-* **`runtime`**: Engine compatibility version. Defaults to `pdt.process.v0`.
+* **`owner`**: Department, role, or team responsible for the process.
 
 ### 2. Description
-The `# Description` section must follow the frontmatter. It defines the boundaries of the process.
+The `# Description` section follows the frontmatter. It defines process context, scope, constraints, and goals.
 
 ```markdown
 # Description
@@ -81,7 +80,11 @@ It ensures all experiment metrics are cross-checked, formatted correctly, and pu
 ```
 
 ### 3. Workflow
-The `# Workflow` section contains the actual steps of the process. Each step is represented by a level-2 (`##`) heading with the syntax: `## Step <N>: <Name>`.
+The `# Workflow` section contains ordered execution steps. Each step uses a level-2 heading:
+
+```markdown
+## Step <N>: <Name>
+```
 
 ```markdown
 # Workflow
@@ -99,52 +102,28 @@ Validate the formatted output payload against `schema/experiment-review`.
 
 ## Reference Resolution Schema
 
-`PROCESS.md` uses inline code ticks to represent bound resources. During compilation, the runtime resolves these strings to path files relative to the workspace:
+`PROCESS.md` uses inline code references to bind steps to standard resource types:
 
-* **`` `skill/<id>` ``**: Resolves to `./skills/<id>/SKILL.md`. Injects the skill text instructions into the current step prompt.
-* **`` `tool/<id>` ``**: Resolves to `./tools/<id>/tool.yaml`. Instantiates the software tool and makes it available to the agent for the current step.
-* **`` `schema/<id>` ``**: Resolves to `./schemas/<id>.schema.json`. Used to validate structured step output payloads.
-* **`` `process/<id>` ``**: Resolves to `./processes/<id>/PROCESS.md`. Executes a sub-process workflow.
+* **`` `skill/<id>` ``** references reusable guidance for the current step.
+* **`` `tool/<id>` ``** references an executable tool or integration.
+* **`` `schema/<id>` ``** references a structured output or payload contract.
+* **`` `process/<id>` ``** references another process as a subprocess.
 
 ---
 
-## Workspace Configuration (`pdt.yaml`)
+## Execution Model
 
-The `pdt.yaml` file configures paths, permissions, and policies for the workspace:
+During execution, an engine resolves references, loads the resources needed for the current step, enforces permissions, validates outputs, and records execution evidence.
 
-```yaml
-project:
-  id: company_ops
-  name: Company Operations Workflows
-
-paths:
-  processes: ./processes
-  skills: ./skills
-  tools: ./tools
-  schemas: ./schemas
-
-tools:
-  allow:
-    - experiment_lookup
-    - campaign_asset_lookup
-
-policy:
-  dry_run_blocks_side_effects: true
-  require_approval_for_external_writes: true
-```
-
-### Policy Properties
-
-* **`dry_run_blocks_side_effects`**: If `true`, any tools marked with `side_effects: true` in their `tool.yaml` will be mocked or bypassed in dry-run mode.
-* **`require_approval_for_external_writes`**: If `true`, requires explicit human confirmation before executing tool calls with side effects.
+Implementations must parse the core reference types and report unresolved references as execution errors. Specific runtimes can add resource types, policies, or integrations as extensions.
 
 ---
 
 ## Compiler Validation Checklist
 
-The compiler checks for compliance before execution:
-1. **Frontmatter Integrity**: Ensure all required keys (`id`, `name`, `version`, `owner`) are present and valid.
-2. **Step Sequence**: Steps must start at `Step 1` and increment by exactly 1 without gaps.
-3. **Reference Verification**: Verify that every referenced skill, tool, schema, or sub-process file exists in the filesystem.
-4. **Tool Permission Check**: Any tool used in a step must be listed in the `tools.allow` list of the workspace's `pdt.yaml`.
-5. **Acyclic Sub-processes**: Ensure nested process calls (`process/<id>`) do not create infinite dependency loops.
+Before execution, a compiler should validate:
+
+1. **Frontmatter integrity:** Required keys (`id`, `name`, `version`, `owner`) are present and valid.
+2. **Step sequence:** Steps start at `Step 1` and increment by 1 without gaps.
+3. **Reference syntax:** Inline references use `` `type/id` `` syntax.
+4. **Reference types:** Core reference types are `skill`, `tool`, `schema`, and `process`.

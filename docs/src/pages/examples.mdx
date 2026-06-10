@@ -1,24 +1,19 @@
 ---
 layout: ../layouts/DocsLayout.astro
 title: "Examples Walkthrough"
-description: "Walkthrough of a conforming PROCESS.md workspace configuration and implementation."
+description: "Example PROCESS.md processes with skills, tools, schemas, and execution behavior."
 ---
 
 # Conforming Workspace Walkthrough
 
-To see how `PROCESS.md` operates in practice, let's look at the sample workspace provided in this repository under `/examples/company_ops/`. 
-
-This workspace models a marketing and growth ops department automating experiment analysis and marketing readiness reviews.
+This example models growth and marketing operations workflows. It shows how processes can reference skills, tools, schemas, and subprocesses.
 
 ---
 
 ## Directory Layout
 
-The workspace follows this structured setup:
-
 ```text
 examples/company_ops/
-├── pdt.yaml                          # Global project config
 ├── processes/                        # Executable workflows
 │   ├── growth_experiment_review/
 │   │   └── PROCESS.md
@@ -42,39 +37,12 @@ examples/company_ops/
 
 ---
 
-## Workspace Settings: `pdt.yaml`
-
-The project root defines environment rules and tool gates:
-
-```yaml
-project:
-  id: company_ops
-  name: Company Operations Workflows
-
-paths:
-  processes: ./processes
-  skills: ./skills
-  tools: ./tools
-  schemas: ./schemas
-
-tools:
-  allow:
-    - experiment_lookup
-    - campaign_asset_lookup
-
-policy:
-  dry_run_blocks_side_effects: true
-  require_approval_for_external_writes: true
-```
-
----
-
 ## Step-by-Step Breakdown: `growth_experiment_review`
 
-Let's review the `growth_experiment_review` process (`processes/growth_experiment_review/PROCESS.md`).
+The `growth_experiment_review` process reviews completed experiments and produces a validated summary.
 
 ### Part 1: Frontmatter & Description
-The process defines its identity, owner, and its operational boundaries:
+The frontmatter identifies the process. The description sets scope, preconditions, and expected outcomes.
 
 ```markdown
 ---
@@ -85,7 +53,6 @@ owner: growth-ops
 status: active
 description: Analyzes completed product growth experiments and updates downstream spreadsheets.
 tags: [growth, analytics, operations]
-runtime: pdt.process.v0
 ---
 
 # Description
@@ -104,11 +71,12 @@ outcomes are summarized, formatted, and validated before publication.
 #### Step 1: Ingest Experiment Metadata
 ```markdown
 ## Step 1: Retrieve Experiment Metadata
-Look up the experiment metadata using the `tool/experiment_lookup` tool. 
-Specify the experiment identifier provided in the workspace context.
+Look up the experiment metadata using the `tool/experiment_lookup` tool.
+Specify the experiment identifier provided in the execution context.
 If no experiment matches, halt execution immediately.
 ```
-* **Runtime Behavior:** The compiler binds the `experiment_lookup` tool to this step. The LLM is prohibited from performing general analysis or making other API calls; its single job is to call the lookup tool.
+
+**Execution behavior:** The engine exposes only the `experiment_lookup` tool for this step. The agent retrieves metadata and stops if the experiment cannot be found.
 
 #### Step 2: Perform Data Analysis
 ```markdown
@@ -116,7 +84,8 @@ If no experiment matches, halt execution immediately.
 Evaluate the telemetry data using the guidelines in `skill/experiment-analysis`.
 Format the final output payload representing the analysis summary.
 ```
-* **Runtime Behavior:** The compiler parses `SKILL.md` for `experiment-analysis` and appends its guidelines to the step prompt. No active tools are provided here, reducing reasoning drift.
+
+**Execution behavior:** The engine injects the `experiment-analysis` skill guidance. No lookup tool is exposed in this step.
 
 #### Step 3: Conformance Validation
 ```markdown
@@ -124,13 +93,14 @@ Format the final output payload representing the analysis summary.
 Ensure the final output conforms strictly to the schema structure defined in `schema/experiment-review`.
 Verify that key metrics (e.g. lift, p-value, sample size) are populated.
 ```
-* **Runtime Behavior:** The runtime intercepts the output of this step and validates the JSON payload against `experiment-review.schema.json`. If it fails, the step is re-run or flagged with an error.
+
+**Execution behavior:** The engine validates the output against `experiment-review.schema.json`. Invalid payloads are corrected, retried, or reported as errors.
 
 ---
 
 ## The Reusable Skill: `experiment-analysis`
 
-The file `skills/experiment-analysis/SKILL.md` provides detailed instructions for calculating statistical metrics:
+`skills/experiment-analysis/SKILL.md` defines reusable analysis rules:
 
 ```markdown
 ---
@@ -151,7 +121,7 @@ When analyzing product growth experiments, follow these mathematical constraints
 
 ## The Executable Tool: `experiment_lookup`
 
-The folder `tools/experiment_lookup/` exposes a programmatic Python script to the agent:
+`tools/experiment_lookup/` defines a tool that can be exposed to a step.
 
 ### `tool.yaml`
 ```yaml
@@ -170,4 +140,4 @@ parameters:
     - experiment_id
 side_effects: false
 ```
-Because `side_effects` is `false`, this tool can run without triggering human approval blocks.
+The `side_effects: false` flag indicates that the lookup is read-only.

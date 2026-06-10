@@ -6,7 +6,6 @@ owner: marketing-ops
 status: active
 description: Reviews marketing campaign assets and copy against brand positioning before launch.
 tags: [marketing, brand, copy, launch]
-runtime: pdt.process.v0
 ---
 
 # Description

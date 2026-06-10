@@ -6,7 +6,6 @@ owner: growth-ops
 status: active
 description: Analyzes completed product growth experiments and updates downstream spreadsheets.
 tags: [growth, analytics, operations]
-runtime: pdt.process.v0
 ---
 
 # Description
